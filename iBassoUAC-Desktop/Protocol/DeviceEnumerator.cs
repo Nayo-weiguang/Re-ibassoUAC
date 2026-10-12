@@ -6,16 +6,18 @@ namespace iBassoUAC.Protocol;
 public sealed record UsbDeviceInfo(string Path, ushort VendorId, ushort ProductId, string ProductName, string Manufacturer)
 {
     public string VidPid => $"{VendorId:X4}:{ProductId:X4}";
-    public string DisplayName => string.IsNullOrWhiteSpace(ProductName) ? $"HID {VidPid}" : ProductName;
-    public bool IsIbasoFamily => UsbIds.Known.Contains(VendorId);
+    public string DisplayName => string.IsNullOrWhiteSpace(ProductName) ? $"HID 设备 ({VidPid})" : ProductName;
+    public bool IsIbasoFamily => UsbIds.Known.Contains(VendorId) || DisplayName.Contains("iBasso", StringComparison.OrdinalIgnoreCase) || DisplayName.Contains("DC", StringComparison.OrdinalIgnoreCase);
+    public string CategoryTag => IsIbasoFamily ? "iBasso DAC" : "通用 HID 外设";
+    public string Subtitle => $"VID: {VendorId:X4}  PID: {ProductId:X4}  {(string.IsNullOrWhiteSpace(Manufacturer) ? "" : $"|  {Manufacturer}")}";
 }
 
 public static class DeviceEnumerator
 {
-    /// <summary>Lists every attached HID device, cheapest-field-first.</summary>
-    public static IReadOnlyList<UsbDeviceInfo> Enumerate()
+    /// <summary>Lists every attached HID device, cheapest-field-first, deduplicated by physical device.</summary>
+    public static IReadOnlyList<UsbDeviceInfo> Enumerate(bool onlyAudioFamily = false)
     {
-        var result = new List<UsbDeviceInfo>();
+        var rawList = new List<UsbDeviceInfo>();
         foreach (var path in HidApi.EnumerateHidPaths())
         {
             var handle = HidApi.Open(path);
@@ -31,7 +33,7 @@ public static class DeviceEnumerator
                 var attributes = HidApi.GetAttributes(handle);
                 if (attributes.Size == 0) continue;
 
-                result.Add(new UsbDeviceInfo(
+                rawList.Add(new UsbDeviceInfo(
                     path,
                     attributes.VendorID,
                     attributes.ProductID,
@@ -44,10 +46,30 @@ public static class DeviceEnumerator
             }
         }
 
-        return result
+        // Deduplicate devices with identical VidPid and DisplayName to avoid multiple interface spam (e.g. 5x keyboards)
+        var unique = new List<UsbDeviceInfo>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var dev in rawList)
+        {
+            var key = $"{dev.VendorId:X4}:{dev.ProductId:X4}:{dev.DisplayName}";
+            if (seen.Add(key))
+            {
+                unique.Add(dev);
+            }
+        }
+
+        var sorted = unique
             .OrderByDescending(d => d.IsIbasoFamily)
             .ThenBy(d => d.DisplayName)
             .ToList();
+
+        if (onlyAudioFamily)
+        {
+            var filtered = sorted.Where(d => d.IsIbasoFamily).ToList();
+            if (filtered.Count > 0) return filtered;
+        }
+
+        return sorted;
     }
 
     /// <summary>Dumps raw SetupAPI state so enumeration problems are diagnosable.</summary>

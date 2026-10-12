@@ -1,8 +1,8 @@
 <Window x:Class="iBassoUAC.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="iBasso UAC 桌面控制台" Height="760" Width="1180"
-        MinHeight="620" MinWidth="980"
+        Title="iBasso UAC 桌面控制台 (Studio Console Edition)" Height="780" Width="1200"
+        MinHeight="680" MinWidth="1020"
         Background="{StaticResource BgBrush}"
         Foreground="{StaticResource FgBrush}"
         WindowStartupLocation="CenterScreen">
@@ -10,211 +10,530 @@
     <KeyBinding Key="F5" Command="{Binding RefreshStateCommand}" />
   </Window.InputBindings>
 
-  <Grid Margin="14">
+  <Grid Margin="18">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <!-- header -->
-    <Grid Grid.Row="0" Margin="0,0,0,12">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="Auto" />
-      </Grid.ColumnDefinitions>
-      <StackPanel>
-        <TextBlock Text="iBasso UAC 桌面控制台" FontSize="19" FontWeight="SemiBold" />
-        <TextBlock Text="由官方 iBasso UAC 2.1.9 (com.ibasso.volume) 协议逆向实现" Style="{StaticResource Muted}" />
-      </StackPanel>
-      <TextBlock Grid.Column="1" Text="{Binding Status}" VerticalAlignment="Center"
-                 Foreground="{StaticResource OkBrush}" FontSize="13" />
-    </Grid>
+    <!-- ==================== 顶部全局导航栏 Header ==================== -->
+    <Border Grid.Row="0" Margin="0,0,0,16" Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="8" Padding="18,12">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
 
+        <!-- 左侧标题与产品说明 -->
+        <StackPanel VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+            <TextBlock Text="iBasso UAC" FontSize="20" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+            <Border Margin="10,0,0,0" Background="{StaticResource AccentSoftBgBrush}" BorderBrush="{StaticResource AccentBrush}"
+                    BorderThickness="1" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+              <TextBlock Text="STUDIO CONSOLE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+            </Border>
+            <Border Margin="6,0,0,0" Background="{StaticResource HiResGoldBgBrush}" BorderBrush="{StaticResource HiResGoldBrush}"
+                    BorderThickness="1" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+              <TextBlock Text="Hi-Res AUDIO" FontSize="10" FontWeight="Bold" Foreground="{StaticResource HiResGoldBrush}" />
+            </Border>
+          </StackPanel>
+          <TextBlock Text="基于官方 iBasso UAC 2.1.9 (com.ibasso.volume) 协议逆向实现的硬件级音频控制台"
+                     Style="{StaticResource Muted}" FontSize="12" />
+        </StackPanel>
+
+        <!-- 右侧连接状态看板 -->
+        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+          <Border Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                  BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,10,0">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{Binding ConnectionBadgeText}" FontWeight="SemiBold" FontSize="12" />
+            </StackPanel>
+          </Border>
+          <Border Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                  BorderThickness="1" CornerRadius="6" Padding="12,6">
+            <TextBlock Text="{Binding Status}" Foreground="{StaticResource FgSecondaryBrush}" FontSize="12" />
+          </Border>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ==================== 主工作区 Main Content ==================== -->
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="300" />
-        <ColumnDefinition Width="12" />
+        <ColumnDefinition Width="320" />
+        <ColumnDefinition Width="16" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <!-- device panel -->
-      <Border Grid.Column="0" Style="{StaticResource Card}">
-        <DockPanel>
-          <StackPanel DockPanel.Dock="Top">
-            <TextBlock Text="USB 设备" Style="{StaticResource H1}" />
-            <Button Content="刷新列表" Command="{Binding RefreshCommand}" Margin="0,0,0,8" />
-            <ListBox ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}"
-                     Height="300" Background="#0E1015" BorderBrush="{StaticResource LineBrush}">
-              <ListBox.ItemTemplate>
-                <DataTemplate>
-                  <StackPanel Margin="2,4">
-                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding VidPid}" Style="{StaticResource Muted}" />
-                  </StackPanel>
-                </DataTemplate>
-              </ListBox.ItemTemplate>
-            </ListBox>
-            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-              <Button Content="连接" Style="{StaticResource Primary}" Command="{Binding ConnectCommand}" Margin="0,0,8,0" />
-              <Button Content="断开" Command="{Binding DisconnectCommand}" />
-            </StackPanel>
-          </StackPanel>
+      <!-- ==================== 左侧：USB 设备管理器 ==================== -->
+      <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource LineBrush}"
+              BorderThickness="1" CornerRadius="8" Padding="14">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
 
-          <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0"
-                     Text="提示：若无法打开设备，请使用管理员身份运行；或为该 HID 设备安装 WinUSB 驱动。" />
-        </DockPanel>
+          <!-- 1. 列表头部与刷新按钮 -->
+          <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="USB 设备清单" Style="{StaticResource H1}" VerticalAlignment="Center" Margin="0" />
+            <Button Grid.Column="1" Content="↻ 刷新" Command="{Binding RefreshCommand}" Padding="10,4" />
+          </Grid>
+
+          <!-- 2. 智能外设过滤器（根治无关键盘/RGB灯控刷屏痛点） -->
+          <Border Grid.Row="1" Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                  BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+            <StackPanel>
+              <CheckBox Content="显示全部 HID 外设 (含键鼠/灯控)" IsChecked="{Binding ShowAllDevices}" />
+              <TextBlock Text="默认仅展示 iBasso 及其音频解码设备，隐藏多重接口键盘等无关干扰项。"
+                         Style="{StaticResource SmallCaption}" Margin="0,4,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+
+          <!-- 3. 自适应设备列表 -->
+          <ListBox Grid.Row="2" ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid Margin="2,2">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+
+                  <!-- 设备名称 -->
+                  <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding DisplayName}" FontWeight="SemiBold"
+                             FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+
+                  <!-- 设备类型分类徽章 -->
+                  <Border Grid.Row="0" Grid.Column="1" CornerRadius="3" Padding="5,1" Margin="6,0,0,0"
+                          VerticalAlignment="Center">
+                    <Border.Style>
+                      <Style TargetType="Border">
+                        <Setter Property="Background" Value="#1E2536" />
+                        <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsIbasoFamily}" Value="True">
+                            <Setter Property="Background" Value="{StaticResource HiResGoldBgBrush}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource HiResGoldBrush}" />
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding CategoryTag}" FontSize="10" FontWeight="SemiBold">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Foreground" Value="{StaticResource FgSecondaryBrush}" />
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsIbasoFamily}" Value="True">
+                              <Setter Property="Foreground" Value="{StaticResource HiResGoldBrush}" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </TextBlock.Style>
+                    </TextBlock>
+                  </Border>
+
+                  <!-- 硬件 VID:PID 与制造商信息 -->
+                  <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Subtitle}"
+                             Style="{StaticResource Muted}" FontSize="11" Margin="0,3,0,0"
+                             TextTrimming="CharacterEllipsis" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <!-- 4. 连接与断开操作按钮 -->
+          <Grid Grid.Row="3" Margin="0,10,0,10">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="8" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="建立连接" Style="{StaticResource Primary}" Command="{Binding ConnectCommand}" />
+            <Button Grid.Column="2" Content="断开连接" Style="{StaticResource Danger}" Command="{Binding DisconnectCommand}" />
+          </Grid>
+
+          <!-- 5. 底部系统安全提示 -->
+          <Border Grid.Row="4" Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                  BorderThickness="1" CornerRadius="6" Padding="10">
+            <StackPanel>
+              <TextBlock Text="🛡️ 硬件免驱提示" FontWeight="SemiBold" FontSize="11" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,2" />
+              <TextBlock Text="控制通道完全使用系统自带 hidusb.sys 驱动。无需替换 WinUSB，不影响日常声音播放。"
+                         Style="{StaticResource SmallCaption}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+        </Grid>
       </Border>
 
-      <!-- main area -->
-      <TabControl Grid.Column="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}">
+      <!-- ==================== 右侧：核心功能选项卡 ==================== -->
+      <TabControl Grid.Column="2">
 
-        <TabItem Header="音量">
-          <Grid Margin="16">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="*" />
-              <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <!-- ==================== Tab 1: 音量与硬件看板 ==================== -->
+        <TabItem Header="音量与状态">
+          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="16">
 
-            <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,16,0,12">
-              <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*" />
-                  <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+              <!-- 1. 硬件芯片与控制通道看板 (Hardware Banner) -->
+              <Border Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                      BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,14">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                      <TextBlock Text="当前解码器架构：" Style="{StaticResource Muted}" FontSize="12" />
+                      <TextBlock Text="{Binding HardwareChipSummary}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource HiResGoldBrush}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding HardwareInterfaceSummary}" Style="{StaticResource SmallCaption}" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Content="读取硬件状态 (F5)" Command="{Binding RefreshStateCommand}" VerticalAlignment="Center" />
+                </Grid>
+              </Border>
+
+              <!-- 2. 主音量控制卡片 (Master Volume) -->
+              <Border Style="{StaticResource Card}" Margin="0,0,0,14">
                 <StackPanel>
-                  <TextBlock Text="主音量" Style="{StaticResource H1}" />
+                  <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="主音量控制 (Master Volume)" Style="{StaticResource H1}" />
+                      <TextBlock Text="硬件数字衰减阵列调节，步进精准无底噪失真" Style="{StaticResource Muted}" />
+                    </StackPanel>
+
+                    <!-- 大字号声学分贝读数 -->
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding VolumeDb, StringFormat={}{0:0.0}}" FontSize="32" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+                        <TextBlock Text=" dB" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" VerticalAlignment="Bottom" Margin="2,0,0,4" />
+                      </StackPanel>
+                      <TextBlock Text="{Binding VolumeIndex, StringFormat=档位: {0} / 100}" Style="{StaticResource Muted}" HorizontalAlignment="Right" />
+                    </StackPanel>
+                  </Grid>
+
+                  <!-- 主音量滑块 -->
                   <Slider Minimum="0" Maximum="{Binding MaxVolume}" Value="{Binding VolumeIndex}"
-                          TickFrequency="1" IsSnapToTickEnabled="True" Height="28" />
-                  <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding VolumeDb, StringFormat={}{0:0.0} dB}" FontSize="26" FontWeight="Bold" />
-                    <TextBlock Text="{Binding VolumeIndex, StringFormat=   档位 {0}}" Style="{StaticResource Muted}" />
+                          TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,6,0,14" />
+
+                  <!-- 控制工具栏：微调与预设按钮 -->
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 左侧：微调步进与静音 -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                      <Button Content="－ 1 档" Command="{Binding VolumeStepDownCommand}" Margin="0,0,6,0" Padding="12,5" />
+                      <Button Content="＋ 1 档" Command="{Binding VolumeStepUpCommand}" Margin="0,0,10,0" Padding="12,5" />
+                      <Button Content="🔇 静音" Command="{Binding MuteCommand}" Style="{StaticResource Danger}" Padding="12,5" />
+                    </StackPanel>
+
+                    <!-- 右侧：常用音量快速预设胶囊按钮 -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                      <TextBlock Text="快捷档位：" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                      <Button Content="30%" Style="{StaticResource PillButton}" Command="{Binding SetPresetVolumeCommand}" CommandParameter="30" Margin="0,0,6,0" />
+                      <Button Content="50%" Style="{StaticResource PillButton}" Command="{Binding SetPresetVolumeCommand}" CommandParameter="50" Margin="0,0,6,0" />
+                      <Button Content="70% 舒适" Style="{StaticResource PillButton}" Command="{Binding SetPresetVolumeCommand}" CommandParameter="70" Margin="0,0,6,0" />
+                      <Button Content="100% 满幅" Style="{StaticResource PillButton}" Command="{Binding SetPresetVolumeCommand}" CommandParameter="100" />
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
+              </Border>
+
+              <!-- 3. 声道平衡卡片 (Channel Balance - 自适应高度，解决留白过大缺陷) -->
+              <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                  <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="左右声道平衡 (Channel Balance)" Style="{StaticResource H1}" />
+                      <TextBlock Text="微调左右耳灵敏度差异或听感偏置（中置为 0 档平衡）" Style="{StaticResource Muted}" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="居中归零 (0)" Command="{Binding ResetBalanceCommand}" Padding="12,4" />
+                  </Grid>
+
+                  <!-- 声道平衡滑块与指示 -->
+                  <Grid Margin="0,8,0,4">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="60" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="60" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="◀ 左 (L)" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Left" />
+                    <Slider Grid.Column="1" Minimum="-20" Maximum="20" Value="{Binding Balance}"
+                            TickFrequency="1" IsSnapToTickEnabled="True" Margin="10,0" />
+                    <TextBlock Grid.Column="2" Text="右 (R) ▶" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Right" />
+                  </Grid>
+
+                  <TextBlock Text="{Binding Balance, StringFormat=当前声道偏移量：{0} 档}" Style="{StaticResource Muted}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                </StackPanel>
+              </Border>
+
+              <!-- 4. 双向同步说明卡片 -->
+              <Border Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                      BorderThickness="1" CornerRadius="6" Padding="14">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="💡" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                  <StackPanel>
+                    <TextBlock Text="双向硬件状态同步已激活" FontWeight="SemiBold" FontSize="12" />
+                    <TextBlock Text="在 DAC 硬件侧按压实体按键时，本控制台将自动侦听并实时同步主音量与状态变化。" Style="{StaticResource SmallCaption}" Margin="0,2,0,0" />
                   </StackPanel>
                 </StackPanel>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                  <Button Content="静音" Command="{Binding MuteCommand}" Margin="0,0,0,8" Width="96" />
-                  <Button Content="70%" Command="{Binding SafeVolumeCommand}" Width="96" />
-                </StackPanel>
-              </Grid>
-            </Border>
+              </Border>
 
-            <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,12">
-              <StackPanel>
-                <TextBlock Text="声道平衡" Style="{StaticResource H1}" />
-                <Slider Minimum="-20" Maximum="20" Value="{Binding Balance}" TickFrequency="1" IsSnapToTickEnabled="True" Height="26" />
-                <TextBlock Text="{Binding Balance, StringFormat={}{0} 档（负值为左 louder）}" Style="{StaticResource Muted}" />
-              </StackPanel>
-            </Border>
-
-            <Border Grid.Row="2" Style="{StaticResource Card}">
-              <StackPanel>
-                <TextBlock Text="快捷操作" Style="{StaticResource H1}" />
-                <WrapPanel>
-                  <Button Content="读取设备状态 (F5)" Command="{Binding RefreshStateCommand}" Margin="0,0,8,8" />
-                  <TextBlock Text="设备侧按键/旋钮调节音量时，本窗口会自动跟随硬件上报。"
-                             Style="{StaticResource Muted}" VerticalAlignment="Center" />
-                </WrapPanel>
-              </StackPanel>
-            </Border>
-          </Grid>
-        </TabItem>
-
-        <TabItem Header="声音设置">
-          <ScrollViewer>
-            <StackPanel Margin="16">
-              <TextBlock Text="数字滤波" Style="{StaticResource H1}" />
-              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                <Slider Minimum="0" Maximum="4" Value="{Binding DigitalFilter}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
-                <TextBlock Text="{Binding DigitalFilter}" Margin="12,0,0,0" FontWeight="SemiBold" />
-              </StackPanel>
-
-              <TextBlock Text="DSD / 高通滤波" Style="{StaticResource H1}" />
-              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                <Slider Minimum="0" Maximum="4" Value="{Binding DsdFilter}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
-                <TextBlock Text="{Binding DsdFilter}" Margin="12,0,0,0" FontWeight="SemiBold" />
-              </StackPanel>
-
-              <TextBlock Text="增益" Style="{StaticResource H1}" />
-              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                <Slider Minimum="0" Maximum="2" Value="{Binding Gain}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
-                <TextBlock Text="{Binding Gain}" Margin="12,0,0,0" FontWeight="SemiBold" />
-              </StackPanel>
-
-              <TextBlock Text="输出" Style="{StaticResource H1}" />
-              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                <Slider Minimum="0" Maximum="1" Value="{Binding Output}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
-                <TextBlock Text="{Binding Output}" Margin="12,0,0,0" FontWeight="SemiBold" />
-              </StackPanel>
-
-              <TextBlock Text="SP/DIF 外部解码" Style="{StaticResource H1}" />
-              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                <Slider Minimum="0" Maximum="1" Value="{Binding Spdif}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
-                <TextBlock Text="{Binding Spdif}" Margin="12,0,0,0" FontWeight="SemiBold" />
-              </StackPanel>
-
-              <TextBlock Text="放大器模式" Style="{StaticResource H1}" />
-              <StackPanel Orientation="Horizontal">
-                <Slider Minimum="0" Maximum="3" Value="{Binding AmpMode}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
-                <TextBlock Text="{Binding AmpMode}" Margin="12,0,0,0" FontWeight="SemiBold" />
-              </StackPanel>
             </StackPanel>
           </ScrollViewer>
         </TabItem>
 
-        <TabItem Header="参数 EQ">
+        <!-- ==================== Tab 2: 声音与滤波声学设置 ==================== -->
+        <TabItem Header="声音与声学设置">
+          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="16">
+
+              <!-- 卡片 1: 数字滤波模式 (明文下拉选择 + 专业声学说明) -->
+              <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="DAC 数字滤波器 (Digital Filter)" Style="{StaticResource H1}" />
+                    <TextBlock Text="控制 DAC 内部插值与重构滤波器的瞬态群延迟与高频频响曲线特征。" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                  <ComboBox Grid.Row="1" ItemsSource="{Binding DigitalFilterOptions}"
+                            SelectedItem="{Binding SelectedDigitalFilterOption}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="2,4">
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource FgBrush}" />
+                          <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="11" Margin="0,2,0,0" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
+              </Border>
+
+              <!-- 卡片 2: 推力增益模式 -->
+              <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="输出增益模式 (Gain Level)" Style="{StaticResource H1}" />
+                    <TextBlock Text="调节运放级前级放大倍率。高敏入耳建议低增益以确保零底噪，大阻抗头戴建议高增益。" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                  <ComboBox Grid.Row="1" ItemsSource="{Binding GainOptions}"
+                            SelectedItem="{Binding SelectedGainOption}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="2,4">
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource FgBrush}" />
+                          <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="11" Margin="0,2,0,0" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
+              </Border>
+
+              <!-- 卡片 3: 模拟输出模式 (PO / LO) -->
+              <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="模拟输出选择 (Output Mode)" Style="{StaticResource H1}" />
+                    <TextBlock Text="切换耳机放大输出 (PO) 或纯净线路电平输出 (LO)。LO 模式可直连外接耳放或有源监听音箱。" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                  <ComboBox Grid.Row="1" ItemsSource="{Binding OutputOptions}"
+                            SelectedItem="{Binding SelectedOutputOption}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="2,4">
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource FgBrush}" />
+                          <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="11" Margin="0,2,0,0" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
+              </Border>
+
+              <!-- 卡片 4: SP/DIF 数字输出模式 -->
+              <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="SP/DIF 外部数字输出" Style="{StaticResource H1}" />
+                    <TextBlock Text="启用同轴或光纤数字音频码流输出，将 USB 音频桥接转送至台式解码器。" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                  <ComboBox Grid.Row="1" ItemsSource="{Binding SpdifOptions}" SelectedIndex="{Binding Spdif}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="2,4">
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource FgBrush}" />
+                          <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="11" Margin="0,2,0,0" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
+              </Border>
+
+              <!-- 卡片 5: 耳放驱动模式 -->
+              <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+                  <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="耳放驱动级模式 (Amp Mode)" Style="{StaticResource H1}" />
+                    <TextBlock Text="设置内部模拟驱动电路的供电拓扑与静态偏置电流。" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                  <ComboBox Grid.Row="1" ItemsSource="{Binding AmpModeOptions}" SelectedIndex="{Binding AmpMode}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Margin="2,4">
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource FgBrush}" />
+                          <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="11" Margin="0,2,0,0" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
+              </Border>
+
+              <!-- 卡片 6: DSD 截止频率 / 高通滤波 -->
+              <Border Style="{StaticResource Card}">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="180" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel>
+                    <TextBlock Text="DSD 截止频率 / 高通滤波" Style="{StaticResource H1}" />
+                    <TextBlock Text="消除超高频量化调制噪声或超低频亚音速冲击波。" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <Slider Minimum="0" Maximum="4" Value="{Binding DsdFilter}" TickFrequency="1" IsSnapToTickEnabled="True" />
+                    <TextBlock Text="{Binding DsdFilter, StringFormat=档位: {0}}" Style="{StaticResource Muted}" HorizontalAlignment="Center" Margin="0,2,0,0" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+
+            </StackPanel>
+          </ScrollViewer>
+        </TabItem>
+
+        <!-- ==================== Tab 3: 参数 EQ 调节 ==================== -->
+        <TabItem Header="硬件级参数 EQ">
           <Grid Margin="16">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="260" />
+              <ColumnDefinition Width="280" />
             </Grid.ColumnDefinitions>
 
-            <DataGrid Grid.Column="0" ItemsSource="{Binding Eq.Bands}" AutoGenerateColumns="False"
-                      CanUserAddRows="False" Background="#0E1015" Foreground="{StaticResource FgBrush}"
-                      GridLinesVisibility="Horizontal" BorderBrush="{StaticResource LineBrush}"
-                      HeadersVisibility="Column" RowHeight="28">
-              <DataGrid.Columns>
-                <DataGridTextColumn Header="频段" Binding="{Binding FilterIndex}" IsReadOnly="True" Width="50" />
-                <DataGridComboBoxColumn Header="类型" SelectedItemBinding="{Binding SelectedType}" Width="130"
-                                        ItemsSource="{Binding TypeOptions}"
-                                        ElementStyle="{StaticResource EqCombo}" />
-                <DataGridTextColumn Header="频率 Hz" Binding="{Binding Frequency}" Width="80" />
-                <DataGridTextColumn Header="增益 dB" Binding="{Binding Gain}" Width="80" />
-                <DataGridTextColumn Header="Q 值" Binding="{Binding Factor}" Width="70" />
-              </DataGrid.Columns>
-            </DataGrid>
+            <!-- 左侧：滤波器频段列表 -->
+            <Border Grid.Column="0" Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="10">
+              <DataGrid ItemsSource="{Binding Eq.Bands}" AutoGenerateColumns="False" CanUserAddRows="False"
+                        Background="Transparent" Foreground="{StaticResource FgBrush}" BorderThickness="0"
+                        GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource LineBrush}"
+                        HeadersVisibility="Column" RowHeight="32">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="频段" Binding="{Binding FilterIndex}" IsReadOnly="True" Width="55" />
+                  <DataGridComboBoxColumn Header="滤波器类型" SelectedItemBinding="{Binding SelectedType}" Width="140"
+                                          ItemsSource="{Binding TypeOptions}" />
+                  <DataGridTextColumn Header="中心频率 (Hz)" Binding="{Binding Frequency}" Width="105" />
+                  <DataGridTextColumn Header="增益 (dB)" Binding="{Binding Gain}" Width="85" />
+                  <DataGridTextColumn Header="Q 因子" Binding="{Binding Factor}" Width="75" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </Border>
 
+            <!-- 右侧：预设槽位与操作卡片 -->
             <StackPanel Grid.Column="1" Margin="14,0,0,0">
-              <TextBlock Text="预设槽位" Style="{StaticResource H1}" />
-              <Slider Minimum="0" Maximum="2" Value="{Binding EqPresetSlot}" TickFrequency="1" IsSnapToTickEnabled="True" />
-              <TextBlock Text="{Binding EqPresetSlot, StringFormat=槽 {0}（设备端 7-9）}" Style="{StaticResource Muted}" />
+              <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                  <TextBlock Text="EQ 预设槽位" Style="{StaticResource H1}" />
+                  <Slider Minimum="0" Maximum="2" Value="{Binding EqPresetSlot}" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,4" />
+                  <TextBlock Text="{Binding EqPresetSlot, StringFormat=槽位 {0}（映射设备端自定义 7-9）}" Style="{StaticResource Muted}" />
 
-              <TextBlock Text="总增益 (dB)" Style="{StaticResource H1}" Margin="0,18,0,0" />
-              <TextBox Text="{Binding Eq.TotalGain}" />
+                  <TextBlock Text="全局前级增益 (dB)" Style="{StaticResource H1}" Margin="0,14,0,4" />
+                  <TextBox Text="{Binding Eq.TotalGain}" />
 
-              <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
-                <Button Content="写入设备" Style="{StaticResource Primary}" Command="{Binding WriteEqCommand}" Margin="0,0,8,0" />
-                <Button Content="回读" Command="{Binding ReadEqCommand}" />
-              </StackPanel>
-              <Button Content="重置为平直" Command="{Binding ResetEqCommand}" Margin="0,8,0,0" />
+                  <Grid Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="8" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="写入设备" Style="{StaticResource Primary}" Command="{Binding WriteEqCommand}" />
+                    <Button Grid.Column="2" Content="回读配置" Command="{Binding ReadEqCommand}" />
+                  </Grid>
+                  <Button Content="重置为平直曲线" Command="{Binding ResetEqCommand}" Margin="0,8,0,0" />
+                </StackPanel>
+              </Border>
 
-              <TextBlock Text="本机频响预览" Style="{StaticResource H1}" Margin="0,18,0,0" />
-              <TextBox Text="{Binding EqCurve, Mode=OneWay}" IsReadOnly="True" Height="190"
-                       FontFamily="Consolas" FontSize="12" VerticalScrollBarVisibility="Auto" />
+              <Border Style="{StaticResource Card}">
+                <StackPanel>
+                  <TextBlock Text="频响响应字符预览" Style="{StaticResource H1}" />
+                  <TextBox Text="{Binding EqCurve, Mode=OneWay}" IsReadOnly="True" Height="160"
+                           FontFamily="Consolas" FontSize="11" VerticalScrollBarVisibility="Auto" />
+                </StackPanel>
+              </Border>
             </StackPanel>
           </Grid>
         </TabItem>
 
-        <TabItem Header="协议日志">
-          <Grid Margin="12">
+        <!-- ==================== Tab 4: 协议排障日志 ==================== -->
+        <TabItem Header="协议报文排障">
+          <Grid Margin="16">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto" />
               <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Text="每条 USB 报文的十六进制原文与解析结果——用于真机核对与协议排障。" Style="{StaticResource Muted}" Margin="0,0,0,8" />
+            <Border Grid.Row="0" Background="{StaticResource SubPanelBrush}" BorderBrush="{StaticResource LineBrush}"
+                    BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,10">
+              <TextBlock Text="实时抓取展示与 iBasso USB 控制接口交互的十六进制报文与响应解析，用于真机核对与底层排障。"
+                         Style="{StaticResource Muted}" />
+            </Border>
             <TextBox Grid.Row="1" Text="{Binding LogText, Mode=OneWay}" IsReadOnly="True"
-                     FontFamily="Consolas" FontSize="12" Background="#0E1015"
+                     FontFamily="Consolas" FontSize="12" Background="#0A0C12" BorderBrush="{StaticResource LineBrush}"
                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                     TextWrapping="NoWrap" AcceptsReturn="True" />
+                     TextWrapping="NoWrap" AcceptsReturn="True" Padding="10" />
           </Grid>
         </TabItem>
 
