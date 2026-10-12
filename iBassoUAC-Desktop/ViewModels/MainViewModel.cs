@@ -90,30 +90,29 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private void InitOptions()
     {
         DigitalFilterOptions.Clear();
-        DigitalFilterOptions.Add(new(0, "快速滚降 (Fast Roll-off)", "频响平直通透，高频延伸自然 [标准推荐]"));
-        DigitalFilterOptions.Add(new(1, "短延迟快速 (Short Delay Fast)", "低群延迟，瞬态优异，打击感紧凑"));
-        DigitalFilterOptions.Add(new(2, "慢速滚降 (Slow Roll-off)", "高频平缓衰减，柔和耐听，适合人声流行"));
-        DigitalFilterOptions.Add(new(3, "短延迟慢速 (Short Delay Slow)", "声场宽松温润，兼具低相位失真"));
-        DigitalFilterOptions.Add(new(4, "无超采样 (NOS)", "无数字滤波干预，还原模拟母带韵味"));
+        DigitalFilterOptions.Add(new(0, "快速滚降滤波", "Fast roll-off · 标准平直高频延伸"));
+        DigitalFilterOptions.Add(new(1, "低延迟快速滚降滤波", "Short delay fast roll-off · 低群延迟紧凑瞬态"));
+        DigitalFilterOptions.Add(new(2, "慢速滚降滤波", "Slow roll-off · 柔和平缓耐听"));
+        DigitalFilterOptions.Add(new(3, "低延迟慢速滚降滤波", "Short delay slow roll-off · 声场温润松弛"));
+        DigitalFilterOptions.Add(new(4, "非过采样", "Non oversampling (NOS) · 还原模拟韵味"));
 
         GainOptions.Clear();
-        GainOptions.Add(new(0, "低增益 (Low Gain)", "输出柔和，底噪极低，适用高敏入耳耳塞"));
-        GainOptions.Add(new(1, "中增益 (Medium Gain)", "平衡推力，兼顾动态与声场微细节"));
-        GainOptions.Add(new(2, "高增益 (High Gain)", "强劲推力，充分释放大动态，适合大耳/高阻"));
+        GainOptions.Add(new(0, "低", "Low · 适用高灵敏入耳耳塞"));
+        GainOptions.Add(new(1, "中", "Middle · 平衡推力模式"));
+        GainOptions.Add(new(2, "高", "High · 强劲推力适合高阻大耳"));
 
         OutputOptions.Clear();
-        OutputOptions.Add(new(0, "耳机输出 (PO - Headphone Out)", "耳机功率放大输出模式"));
-        OutputOptions.Add(new(1, "线路输出 (LO - Line Out)", "纯净线路电平输出，直连耳放或有源音箱"));
+        OutputOptions.Add(new(0, "普通", "Normal · 标准耳机放大输出"));
+        OutputOptions.Add(new(1, "增压", "Turbo · 增强推力电压输出"));
 
         SpdifOptions.Clear();
-        SpdifOptions.Add(new(0, "关闭外部解码 (Off)", "正常 USB DAC 模拟音频输出"));
-        SpdifOptions.Add(new(1, "开启 SP/DIF 输出 (On)", "同轴/光纤数字输出至外部 DAC 解码器"));
+        SpdifOptions.Add(new(0, "关", "Off · 正常 USB DAC 模拟输出"));
+        SpdifOptions.Add(new(1, "开", "On · 启用同轴输出"));
 
         AmpModeOptions.Clear();
-        AmpModeOptions.Add(new(0, "标准模式 (Standard)", "标准功耗与保真度"));
-        AmpModeOptions.Add(new(1, "增强模式 (Turbo)", "提高内部驱动级电流"));
-        AmpModeOptions.Add(new(2, "纯音模式 (Direct)", "最短信号路径直接放大"));
-        AmpModeOptions.Add(new(3, "高动态模式 (High Dynamic)", "扩展动态范围裕量"));
+        AmpModeOptions.Add(new(0, "普通", "Normal · 标准工作模式"));
+        AmpModeOptions.Add(new(1, "省电模式", "Power Saving · 优化低功耗"));
+        AmpModeOptions.Add(new(2, "超级", "Super · 满幅高动态模式"));
     }
 
     // ------------------------------------------------------------- properties
