@@ -1,0 +1,69 @@
+# ========================================================
+# .gitignore for Re-ibassoUAC
+# ========================================================
+
+# --- .NET & Visual Studio build outputs ---
+bin/
+obj/
+dist/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+[Dd]ebug/
+[Rr]elease/
+
+# --- Temporary debug outputs & logs ---
+*.out
+*.err
+*.log
+tmp_*.txt
+tmp_*.err.txt
+step_*.out
+step_*.err
+step_methods.out
+step_methods.err
+step_listen.out
+step_listen.err
+step_send.out
+step_send.err
+probe.out
+probe.err
+jadx_res.log
+jadx_res.err.log
+jadx.log
+jadx.err.log
+j147.err.log
+rea_apk_inspect.json
+
+# --- Temporary reverse engineering workspaces & caches ---
+tmpcache/
+apk_extracted/
+apk_rebuilt/
+j147out/
+analysis/
+
+# --- Large archives & toolchain binaries (>100MB / non-source) ---
+*.zip
+*.7z
+*.rar
+*.tar.gz
+tools/jadx/
+tools/jadx147/
+tools/jadx-headless-mcp/
+tools/zadig/
+*.apk
+
+# --- Local migration scripts ---
+transfer_to_H.bat
+transfer_to_H.ps1
+
+# --- OS & Editor artifacts ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~

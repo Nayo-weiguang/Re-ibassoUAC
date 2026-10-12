@@ -1,0 +1,224 @@
+<Window x:Class="iBassoUAC.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="iBasso UAC 桌面控制台" Height="760" Width="1180"
+        MinHeight="620" MinWidth="980"
+        Background="{StaticResource BgBrush}"
+        Foreground="{StaticResource FgBrush}"
+        WindowStartupLocation="CenterScreen">
+  <Window.InputBindings>
+    <KeyBinding Key="F5" Command="{Binding RefreshStateCommand}" />
+  </Window.InputBindings>
+
+  <Grid Margin="14">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <!-- header -->
+    <Grid Grid.Row="0" Margin="0,0,0,12">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <StackPanel>
+        <TextBlock Text="iBasso UAC 桌面控制台" FontSize="19" FontWeight="SemiBold" />
+        <TextBlock Text="由官方 iBasso UAC 2.1.9 (com.ibasso.volume) 协议逆向实现" Style="{StaticResource Muted}" />
+      </StackPanel>
+      <TextBlock Grid.Column="1" Text="{Binding Status}" VerticalAlignment="Center"
+                 Foreground="{StaticResource OkBrush}" FontSize="13" />
+    </Grid>
+
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="300" />
+        <ColumnDefinition Width="12" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- device panel -->
+      <Border Grid.Column="0" Style="{StaticResource Card}">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="USB 设备" Style="{StaticResource H1}" />
+            <Button Content="刷新列表" Command="{Binding RefreshCommand}" Margin="0,0,0,8" />
+            <ListBox ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}"
+                     Height="300" Background="#0E1015" BorderBrush="{StaticResource LineBrush}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="2,4">
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding VidPid}" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+              <Button Content="连接" Style="{StaticResource Primary}" Command="{Binding ConnectCommand}" Margin="0,0,8,0" />
+              <Button Content="断开" Command="{Binding DisconnectCommand}" />
+            </StackPanel>
+          </StackPanel>
+
+          <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0"
+                     Text="提示：若无法打开设备，请使用管理员身份运行；或为该 HID 设备安装 WinUSB 驱动。" />
+        </DockPanel>
+      </Border>
+
+      <!-- main area -->
+      <TabControl Grid.Column="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}">
+
+        <TabItem Header="音量">
+          <Grid Margin="16">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,16,0,12">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                  <TextBlock Text="主音量" Style="{StaticResource H1}" />
+                  <Slider Minimum="0" Maximum="{Binding MaxVolume}" Value="{Binding VolumeIndex}"
+                          TickFrequency="1" IsSnapToTickEnabled="True" Height="28" />
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding VolumeDb, StringFormat={}{0:0.0} dB}" FontSize="26" FontWeight="Bold" />
+                    <TextBlock Text="{Binding VolumeIndex, StringFormat=   档位 {0}}" Style="{StaticResource Muted}" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <Button Content="静音" Command="{Binding MuteCommand}" Margin="0,0,0,8" Width="96" />
+                  <Button Content="70%" Command="{Binding SafeVolumeCommand}" Width="96" />
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,12">
+              <StackPanel>
+                <TextBlock Text="声道平衡" Style="{StaticResource H1}" />
+                <Slider Minimum="-20" Maximum="20" Value="{Binding Balance}" TickFrequency="1" IsSnapToTickEnabled="True" Height="26" />
+                <TextBlock Text="{Binding Balance, StringFormat={}{0} 档（负值为左 louder）}" Style="{StaticResource Muted}" />
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource Card}">
+              <StackPanel>
+                <TextBlock Text="快捷操作" Style="{StaticResource H1}" />
+                <WrapPanel>
+                  <Button Content="读取设备状态 (F5)" Command="{Binding RefreshStateCommand}" Margin="0,0,8,8" />
+                  <TextBlock Text="设备侧按键/旋钮调节音量时，本窗口会自动跟随硬件上报。"
+                             Style="{StaticResource Muted}" VerticalAlignment="Center" />
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </TabItem>
+
+        <TabItem Header="声音设置">
+          <ScrollViewer>
+            <StackPanel Margin="16">
+              <TextBlock Text="数字滤波" Style="{StaticResource H1}" />
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Slider Minimum="0" Maximum="4" Value="{Binding DigitalFilter}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
+                <TextBlock Text="{Binding DigitalFilter}" Margin="12,0,0,0" FontWeight="SemiBold" />
+              </StackPanel>
+
+              <TextBlock Text="DSD / 高通滤波" Style="{StaticResource H1}" />
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Slider Minimum="0" Maximum="4" Value="{Binding DsdFilter}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
+                <TextBlock Text="{Binding DsdFilter}" Margin="12,0,0,0" FontWeight="SemiBold" />
+              </StackPanel>
+
+              <TextBlock Text="增益" Style="{StaticResource H1}" />
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Slider Minimum="0" Maximum="2" Value="{Binding Gain}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
+                <TextBlock Text="{Binding Gain}" Margin="12,0,0,0" FontWeight="SemiBold" />
+              </StackPanel>
+
+              <TextBlock Text="输出" Style="{StaticResource H1}" />
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Slider Minimum="0" Maximum="1" Value="{Binding Output}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
+                <TextBlock Text="{Binding Output}" Margin="12,0,0,0" FontWeight="SemiBold" />
+              </StackPanel>
+
+              <TextBlock Text="SP/DIF 外部解码" Style="{StaticResource H1}" />
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Slider Minimum="0" Maximum="1" Value="{Binding Spdif}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
+                <TextBlock Text="{Binding Spdif}" Margin="12,0,0,0" FontWeight="SemiBold" />
+              </StackPanel>
+
+              <TextBlock Text="放大器模式" Style="{StaticResource H1}" />
+              <StackPanel Orientation="Horizontal">
+                <Slider Minimum="0" Maximum="3" Value="{Binding AmpMode}" Width="380" TickFrequency="1" IsSnapToTickEnabled="True" />
+                <TextBlock Text="{Binding AmpMode}" Margin="12,0,0,0" FontWeight="SemiBold" />
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </TabItem>
+
+        <TabItem Header="参数 EQ">
+          <Grid Margin="16">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="260" />
+            </Grid.ColumnDefinitions>
+
+            <DataGrid Grid.Column="0" ItemsSource="{Binding Eq.Bands}" AutoGenerateColumns="False"
+                      CanUserAddRows="False" Background="#0E1015" Foreground="{StaticResource FgBrush}"
+                      GridLinesVisibility="Horizontal" BorderBrush="{StaticResource LineBrush}"
+                      HeadersVisibility="Column" RowHeight="28">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="频段" Binding="{Binding FilterIndex}" IsReadOnly="True" Width="50" />
+                <DataGridComboBoxColumn Header="类型" SelectedItemBinding="{Binding SelectedType}" Width="130"
+                                        ItemsSource="{Binding TypeOptions}"
+                                        ElementStyle="{StaticResource EqCombo}" />
+                <DataGridTextColumn Header="频率 Hz" Binding="{Binding Frequency}" Width="80" />
+                <DataGridTextColumn Header="增益 dB" Binding="{Binding Gain}" Width="80" />
+                <DataGridTextColumn Header="Q 值" Binding="{Binding Factor}" Width="70" />
+              </DataGrid.Columns>
+            </DataGrid>
+
+            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+              <TextBlock Text="预设槽位" Style="{StaticResource H1}" />
+              <Slider Minimum="0" Maximum="2" Value="{Binding EqPresetSlot}" TickFrequency="1" IsSnapToTickEnabled="True" />
+              <TextBlock Text="{Binding EqPresetSlot, StringFormat=槽 {0}（设备端 7-9）}" Style="{StaticResource Muted}" />
+
+              <TextBlock Text="总增益 (dB)" Style="{StaticResource H1}" Margin="0,18,0,0" />
+              <TextBox Text="{Binding Eq.TotalGain}" />
+
+              <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                <Button Content="写入设备" Style="{StaticResource Primary}" Command="{Binding WriteEqCommand}" Margin="0,0,8,0" />
+                <Button Content="回读" Command="{Binding ReadEqCommand}" />
+              </StackPanel>
+              <Button Content="重置为平直" Command="{Binding ResetEqCommand}" Margin="0,8,0,0" />
+
+              <TextBlock Text="本机频响预览" Style="{StaticResource H1}" Margin="0,18,0,0" />
+              <TextBox Text="{Binding EqCurve, Mode=OneWay}" IsReadOnly="True" Height="190"
+                       FontFamily="Consolas" FontSize="12" VerticalScrollBarVisibility="Auto" />
+            </StackPanel>
+          </Grid>
+        </TabItem>
+
+        <TabItem Header="协议日志">
+          <Grid Margin="12">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="每条 USB 报文的十六进制原文与解析结果——用于真机核对与协议排障。" Style="{StaticResource Muted}" Margin="0,0,0,8" />
+            <TextBox Grid.Row="1" Text="{Binding LogText, Mode=OneWay}" IsReadOnly="True"
+                     FontFamily="Consolas" FontSize="12" Background="#0E1015"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                     TextWrapping="NoWrap" AcceptsReturn="True" />
+          </Grid>
+        </TabItem>
+
+      </TabControl>
+    </Grid>
+  </Grid>
+</Window>

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>iBassoUAC.ProtocolSelfTest</RootNamespace>
+    <AssemblyName>ProtocolSelfTest</AssemblyName>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <!-- Reuse the shipping sources directly so the test can never drift from the app. -->
+  <ItemGroup>
+    <Compile Include="..\..\iBassoUAC-Desktop\Interop\**\*.cs" />
+    <Compile Include="..\..\iBassoUAC-Desktop\Protocol\**\*.cs" />
+    <Compile Include="..\..\iBassoUAC-Desktop\Devices\**\*.cs" />
+  </ItemGroup>
+
+</Project>

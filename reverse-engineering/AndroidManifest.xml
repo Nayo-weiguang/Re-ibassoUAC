@@ -1,0 +1,57 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="120" android:versionName="2.1.9" android:compileSdkVersion="36" android:compileSdkVersionCodename="16" package="com.ibasso.volume" platformBuildVersionCode="36" platformBuildVersionName="16">
+  <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36"/>
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+  <uses-feature android:name="android.hardware.usb.host"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+  <uses-permission android:name="android.permission.WAKE_LOCK"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
+  <permission android:name="com.ibasso.volume.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="0x00000002"/>
+  <uses-permission android:name="com.ibasso.volume.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+  <application android:theme="@7F120007" android:label="@7F11001D" android:icon="@7F080072" android:name="com.ibasso.volume.App" android:allowBackup="true" android:supportsRtl="true" android:extractNativeLibs="false" android:usesCleartextTraffic="true" android:appComponentFactory="androidx.core.app.CoreComponentFactory">
+    <activity android:name="com.ibasso.volume.eq.ParamEqActivity" android:exported="true"/>
+    <activity android:name="com.ibasso.volume.SplashActivity" android:exported="true" android:screenOrientation="1" android:noHistory="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+    <activity android:theme="@7F120007" android:label="@7F110121" android:name="com.ibasso.volume.MainActivity" android:exported="false"/>
+    <activity android:theme="@7F12016F" android:label="@7F110102" android:name="com.ibasso.volume.SettingsActivity" android:exported="false" android:launchMode="3" android:screenOrientation="1" android:parentActivityName="com.ibasso.volume.MainActivity"/>
+    <activity android:theme="@7F120450" android:name="com.ibasso.volume.MainActivity2" android:exported="true" android:launchMode="1" android:screenOrientation="1" android:enableOnBackInvokedCallback="true">
+      <intent-filter>
+        <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+        <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"/>
+      </intent-filter>
+      <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" android:resource="@7F140000"/>
+    </activity>
+    <activity android:name="com.ibasso.volume.WebViewActivity"/>
+    <service android:name="com.ibasso.volume.UacServices" android:exported="true" android:foregroundServiceType="0x00000010"/>
+    <activity android:theme="@7F12011D" android:label="" android:name="pub.devrel.easypermissions.AppSettingsDialogHolderActivity" android:exported="false"/>
+    <provider android:name="androidx.startup.InitializationProvider" android:exported="false" android:authorities="com.ibasso.volume.androidx-startup">
+      <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer" android:value="androidx.startup"/>
+      <meta-data android:name="androidx.lifecycle.ProcessLifecycleInitializer" android:value="androidx.startup"/>
+      <meta-data android:name="androidx.profileinstaller.ProfileInstallerInitializer" android:value="androidx.startup"/>
+    </provider>
+    <uses-library android:name="androidx.window.extensions" android:required="false"/>
+    <uses-library android:name="androidx.window.sidecar" android:required="false"/>
+    <receiver android:name="androidx.profileinstaller.ProfileInstallReceiver" android:permission="android.permission.DUMP" android:enabled="true" android:exported="true" android:directBootAware="false">
+      <intent-filter>
+        <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+      </intent-filter>
+    </receiver>
+  </application>
+</manifest>
